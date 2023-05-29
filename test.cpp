@@ -7,9 +7,23 @@ using namespace std;
 class Puzzle {
    public:
       char puzzle[3][3];
+      bool puzzleValidity = false;
       
       Puzzle() {
          loadPuzzleFromFile();
+         validatePuzzle();
+      }
+
+      void validatePuzzle() {
+         puzzleValidity = true;
+         for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+               if (!puzzle[i][j]) {
+                  puzzleValidity = false;
+                  break;
+               }
+            }
+         }
       }
       
       void printPuzzle() {
@@ -39,7 +53,8 @@ class Puzzle {
 
             infile.close();
          } else {
-            cerr << "Puzzle file not found";
+            cerr << "Puzzle file not found" << endl;
+            exit(0);
          }
       }
 };
