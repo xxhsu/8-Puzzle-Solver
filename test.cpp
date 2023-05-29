@@ -7,25 +7,25 @@ using namespace std;
 class Puzzle {
    public:
       char puzzle[3][3];
-      bool puzzleValidity = false;
+      bool validity = false;
       
       Puzzle() {
          loadPuzzleFromFile();
          validatePuzzle();
       }
 
-      void validatePuzzle() {
-         puzzleValidity = true;
+      int validatePuzzle() {
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                if (!puzzle[i][j]) {
-                  puzzleValidity = false;
-                  break;
+                  return 0;
                }
             }
          }
+         validity = true;
+         return 0;
       }
-      
+
       void printPuzzle() {
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -34,10 +34,11 @@ class Puzzle {
             cout << endl;
          }
       }
+
    private:
       void loadPuzzleFromFile() {
          ifstream infile;
-         infile.open(".uzzle");
+         infile.open(".puzzle");
 
          if (infile.is_open()) {
             string line;
@@ -54,12 +55,17 @@ class Puzzle {
             infile.close();
          } else {
             cerr << "Puzzle file not found" << endl;
-            exit(0);
          }
       }
 };
 
 int main() {
    Puzzle puzzle;
+
+   if (!puzzle.validity) {
+      cout << "Invalid puzzle" << endl;
+      return 0;
+   }
+
    puzzle.printPuzzle();
 }
