@@ -4,34 +4,47 @@
 
 using namespace std;
 
-void printPuzzle(char puzzle[3][3]) {
-   for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-         cout << puzzle[i][j];
+class Puzzle {
+   public:
+      char puzzle[3][3];
+      
+      Puzzle() {
+         loadPuzzleFromFile();
       }
-      cout << endl;
-   }
-}
-
-int main() {
-   char puzzle[3][3];
-
-   ifstream infile;
-   infile.open(".puzzle");
-
-   if (infile.is_open()) {
-      string line;
-      cout << "Loading puzzle..." << endl;
-
-      for (int i = 0; i < 3; i++) {
-         getline(infile, line);
-         for (int j = 0; j < 3; j++) {
-            puzzle[i][j] = line[j];
+      
+      void printPuzzle() {
+         for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+               cout << puzzle[i][j];
+            }
+            cout << endl;
          }
       }
-      infile.close();
-      printPuzzle(puzzle);
-   } else {
-      cout << "Puzzle file not found" << endl;
-   }
+   private:
+      void loadPuzzleFromFile() {
+         ifstream infile;
+         infile.open(".uzzle");
+
+         if (infile.is_open()) {
+            string line;
+
+            cout << "Puzzle:" << endl;
+
+            for (int i = 0; i < 3; i++) {
+               getline(infile, line);
+               for (int j = 0; j < 3; j++) {
+                  puzzle[i][j] = line[j];
+               }
+            }
+
+            infile.close();
+         } else {
+            cerr << "Puzzle file not found";
+         }
+      }
+};
+
+int main() {
+   Puzzle puzzle;
+   puzzle.printPuzzle();
 }
