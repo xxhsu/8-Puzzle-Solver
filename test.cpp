@@ -7,11 +7,11 @@ int main() {
    string puzzle;
 
    ifstream infile;
-   infile.open("puzzle.txt");
+   infile.open(".puzzle");
 
    cout << "Loading puzzle..." << endl;
    infile >> puzzle;
-   cout << puzzle << endl;
+   cout << puzzle;
 
    infile.close();
 
