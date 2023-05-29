@@ -1,19 +1,24 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 
 using namespace std;
 
 int main() {
    string puzzle;
+   string line;
 
    ifstream infile;
    infile.open(".puzzle");
 
-   cout << "Loading puzzle..." << endl;
-   infile >> puzzle;
-   cout << puzzle;
-
-   infile.close();
-
-   return 0;
+   if (infile.is_open()) {
+      cout << "Loading puzzle..." << endl;
+      while (getline(infile, line))
+      {
+         /* code */
+      }
+      infile.close();
+   } else {
+      cout << "Puzzle file not found" << endl;
+   }
 }
