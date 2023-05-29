@@ -13,9 +13,8 @@ int main() {
 
    if (infile.is_open()) {
       cout << "Loading puzzle..." << endl;
-      while (getline(infile, line))
-      {
-         /* code */
+      while (getline(infile, line)) {
+         cout << line << endl;
       }
       infile.close();
    } else {
