@@ -1,7 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <cctype>
-#include <cctype>
 
 using namespace std;
 
@@ -45,7 +43,7 @@ class Puzzle {
    private:
       void loadPuzzleFromFile() {
          ifstream infile;
-         infile.open(".pzzle");
+         infile.open(".puzzle");
          if (infile.is_open()) {
             string line;
             for (int i = 0; i < 3; i++) {
