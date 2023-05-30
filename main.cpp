@@ -1,12 +1,13 @@
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cctype>
+#include <cctype>
 
 using namespace std;
 
 class Puzzle {
    public:
-      char puzzle[3][3];
+      int board[3][3];
       bool validity = false;
       
       Puzzle() {
@@ -15,9 +16,14 @@ class Puzzle {
       }
 
       int validatePuzzle() {
+         int digitCount[9] = {0};
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-               if (!puzzle[i][j]) {
+               if (board[i][j] < 0 && board[i][j] > 8) {
+                  return 0;
+               }
+               digitCount[board[i][j]]++;
+               if (digitCount[board[i][j]] > 1) {
                   return 0;
                }
             }
@@ -30,7 +36,7 @@ class Puzzle {
          cout << "Puzzle:" << endl;
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-               cout << puzzle[i][j];
+               cout << board[i][j];
             }
             cout << endl;
          }
@@ -39,21 +45,18 @@ class Puzzle {
    private:
       void loadPuzzleFromFile() {
          ifstream infile;
-         infile.open(".puzzle");
-
+         infile.open(".pzzle");
          if (infile.is_open()) {
             string line;
-
             for (int i = 0; i < 3; i++) {
                getline(infile, line);
                for (int j = 0; j < 3; j++) {
-                  puzzle[i][j] = line[j];
+                  board[i][j] = line[j]-'0';
                }
             }
-
             infile.close();
          } else {
-            cerr << "Puzzle file not found" << endl;
+            cout << "Puzzle file not found" << endl;
          }
       }
 };
@@ -65,6 +68,5 @@ int main() {
       cout << "Invalid puzzle" << endl;
       return 0;
    }
-
    puzzle.printPuzzle();
 }
