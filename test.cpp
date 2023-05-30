@@ -27,6 +27,7 @@ class Puzzle {
       }
 
       void printPuzzle() {
+         cout << "Puzzle:" << endl;
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                cout << puzzle[i][j];
@@ -42,8 +43,6 @@ class Puzzle {
 
          if (infile.is_open()) {
             string line;
-
-            cout << "Puzzle:" << endl;
 
             for (int i = 0; i < 3; i++) {
                getline(infile, line);
