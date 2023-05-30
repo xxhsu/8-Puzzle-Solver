@@ -6,32 +6,43 @@ using namespace std;
 class Puzzle {
    public:
       int board[3][3];
+      int zeroPosition[2];
       bool validity = false;
-      
-      Puzzle() {
-         loadPuzzleFromFile();
-         validatePuzzle();
-      }
 
-      int validatePuzzle() {
-         int digitCount[9] = {0};
-         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-               if (board[i][j] < 0 && board[i][j] > 8) {
+      int loadPuzzleFromFile(string path) {
+         ifstream infile;
+         infile.open(path);
+         if (infile.is_open()) {
+            string line;        
+            int puzzleWidth;
+            for (int i = 0; i < 3; i++) {
+               getline(infile, line);
+               if (i == 0) {
+                  puzzleWidth = line.size();       
+               } else if (puzzleWidth != line.size()) {
+                  cerr << "Puzzle file invalid" << endl;
                   return 0;
                }
-               digitCount[board[i][j]]++;
-               if (digitCount[board[i][j]] > 1) {
-                  return 0;
+               for (int j = 0; j < 3; j++) {
+                  board[i][j] = line[j]-'0';
                }
             }
+            infile.close();
+            validateBoard();
+         } else {
+            cerr << "Puzzle file not found" << endl;
          }
-         validity = true;
          return 0;
       }
 
-      void printPuzzle() {
-         cout << "Puzzle:" << endl;
+      void crashIfBoardIsInvalid() {
+         if (!validity) {
+            exit(0);
+         }
+      }
+
+      void printBoard() {
+         cout << "Puzzle Board:" << endl;
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                cout << board[i][j];
@@ -40,31 +51,72 @@ class Puzzle {
          }
       }
 
-   private:
-      void loadPuzzleFromFile() {
-         ifstream infile;
-         infile.open(".puzzle");
-         if (infile.is_open()) {
-            string line;
-            for (int i = 0; i < 3; i++) {
-               getline(infile, line);
-               for (int j = 0; j < 3; j++) {
-                  board[i][j] = line[j]-'0';
+      void move(int direction) {
+         locateZero();
+         switch (direction) {
+         case 1:
+            if (zeroPosition[0] < 2) {
+               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]+1][zeroPosition[1]];
+               board[zeroPosition[0]+1][zeroPosition[1]] = 0;
+            }
+            break;
+         case 2:
+            if (zeroPosition[1] > 0) {
+               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]][zeroPosition[1]-1];
+               board[zeroPosition[0]][zeroPosition[1]-1] = 0;
+            }
+            break;
+         case 3:
+            if (zeroPosition[0] > 0) {
+               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]-1][zeroPosition[1]];
+               board[zeroPosition[0]-1][zeroPosition[1]] = 0;
+            }
+            break;
+         case 4:
+            if (zeroPosition[1] < 2) {
+               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]][zeroPosition[1]+1];
+               board[zeroPosition[0]][zeroPosition[1]+1] = 0;
+            }
+            break;
+         default:
+            break;
+         }
+      }
+
+      void locateZero() {
+         for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+               if (board[i][j] == 0) {
+                  zeroPosition[0] = i;
+                  zeroPosition[1] = j;
                }
             }
-            infile.close();
-         } else {
-            cout << "Puzzle file not found" << endl;
          }
+      }
+   private:
+      int validateBoard() {
+         int pieceNumberCount[9] = {0};
+         for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+               if (board[i][j] < 0 && board[i][j] > 8) {
+                  return 0;
+               }
+               pieceNumberCount[board[i][j]]++;
+               if (pieceNumberCount[board[i][j]] > 1) {
+                  return 0;
+               }
+            }
+         }
+         validity = true;
+         return 0;
       }
 };
 
 int main() {
    Puzzle puzzle;
+   
+   puzzle.loadPuzzleFromFile(".puzzle");
+   puzzle.crashIfBoardIsInvalid();
 
-   if (!puzzle.validity) {
-      cout << "Invalid puzzle" << endl;
-      return 0;
-   }
-   puzzle.printPuzzle();
+   puzzle.printBoard();
 }
