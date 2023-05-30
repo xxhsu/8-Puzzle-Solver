@@ -6,7 +6,7 @@ using namespace std;
 class Puzzle {
    public:
       int board[3][3];
-      int zeroPosition[2];
+      int zeroPos[2];
       bool validity = false;
 
       int loadPuzzleFromFile(string path) {
@@ -55,27 +55,27 @@ class Puzzle {
          locateZero();
          switch (direction) {
          case 1:
-            if (zeroPosition[0] < 2) {
-               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]+1][zeroPosition[1]];
-               board[zeroPosition[0]+1][zeroPosition[1]] = 0;
+            if (zeroPos[0] < 2) {
+               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]+1][zeroPos[1]];
+               board[zeroPos[0]+1][zeroPos[1]] = 0;
             }
             break;
          case 2:
-            if (zeroPosition[1] > 0) {
-               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]][zeroPosition[1]-1];
-               board[zeroPosition[0]][zeroPosition[1]-1] = 0;
+            if (zeroPos[1] > 0) {
+               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]][zeroPos[1]-1];
+               board[zeroPos[0]][zeroPos[1]-1] = 0;
             }
             break;
          case 3:
-            if (zeroPosition[0] > 0) {
-               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]-1][zeroPosition[1]];
-               board[zeroPosition[0]-1][zeroPosition[1]] = 0;
+            if (zeroPos[0] > 0) {
+               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]-1][zeroPos[1]];
+               board[zeroPos[0]-1][zeroPos[1]] = 0;
             }
             break;
          case 4:
-            if (zeroPosition[1] < 2) {
-               board[zeroPosition[0]][zeroPosition[1]] = board[zeroPosition[0]][zeroPosition[1]+1];
-               board[zeroPosition[0]][zeroPosition[1]+1] = 0;
+            if (zeroPos[1] < 2) {
+               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]][zeroPos[1]+1];
+               board[zeroPos[0]][zeroPos[1]+1] = 0;
             }
             break;
          default:
@@ -87,8 +87,8 @@ class Puzzle {
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                if (board[i][j] == 0) {
-                  zeroPosition[0] = i;
-                  zeroPosition[1] = j;
+                  zeroPos[0] = i;
+                  zeroPos[1] = j;
                }
             }
          }
