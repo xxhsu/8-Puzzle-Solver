@@ -1,12 +1,17 @@
 #include <iostream>
 #include <fstream>
+#include <utility>
 
 using namespace std;
+using direction = enum {Up, Down, Right, Left};
 
-class Puzzle {
+class Solver {
+   using Puzzle = unsigned short int[3][3];
+   using Coordinate = pair<unsigned short int, unsigned short int>;
+
    public:
-      int board[3][3];
-      int zeroPos[2];
+      Puzzle board;
+      Coordinate zeroPos;
       bool validity = false;
 
       int loadPuzzleFromFile(string path) {
@@ -37,45 +42,50 @@ class Puzzle {
 
       void crashIfBoardIsInvalid() {
          if (!validity) {
+            cout << "Error: Invalid puzzle" << endl;
             exit(0);
          }
       }
 
-      void printBoard() {
-         cout << "Puzzle Board:" << endl;
+      void printPuzzle(Puzzle puzzle) const {
+         cout << "Board:" << endl;
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-               cout << board[i][j];
+               cout << puzzle[i][j] << " ";
             }
             cout << endl;
          }
       }
 
-      void move(int direction) {
+      inline void move(direction direction) {
          locateZero();
+
+         int x = zeroPos.first;
+         int y = zeroPos.second;
+
          switch (direction) {
-         case 1:
-            if (zeroPos[0] < 2) {
-               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]+1][zeroPos[1]];
-               board[zeroPos[0]+1][zeroPos[1]] = 0;
+         case Up:
+            if (x < 2) {
+               board[x][y] = board[x+1][y];
+               board[x+1][y] = 0;
             }
             break;
-         case 2:
-            if (zeroPos[1] > 0) {
-               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]][zeroPos[1]-1];
-               board[zeroPos[0]][zeroPos[1]-1] = 0;
+         case Right:
+            if (y > 0) {
+               board[x][y] = board[x][y-1];
+               board[x][y-1] = 0;
             }
             break;
-         case 3:
-            if (zeroPos[0] > 0) {
-               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]-1][zeroPos[1]];
-               board[zeroPos[0]-1][zeroPos[1]] = 0;
+         case Down:
+            if (x > 0) {
+               board[x][y] = board[x-1][y];
+               board[x-1][y] = 0;
             }
             break;
-         case 4:
-            if (zeroPos[1] < 2) {
-               board[zeroPos[0]][zeroPos[1]] = board[zeroPos[0]][zeroPos[1]+1];
-               board[zeroPos[0]][zeroPos[1]+1] = 0;
+         case Left:
+            if (y < 2) {
+               board[x][y] = board[x][y+1];
+               board[x][y+1] = 0;
             }
             break;
          default:
@@ -83,12 +93,12 @@ class Puzzle {
          }
       }
 
-      void locateZero() {
+      inline void locateZero() {
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                if (board[i][j] == 0) {
-                  zeroPos[0] = i;
-                  zeroPos[1] = j;
+                  zeroPos.first = i;
+                  zeroPos.second = j;
                }
             }
          }
@@ -113,10 +123,15 @@ class Puzzle {
 };
 
 int main() {
-   Puzzle puzzle;
+   Solver solver;
    
-   puzzle.loadPuzzleFromFile(".puzzle");
-   puzzle.crashIfBoardIsInvalid();
+   solver.loadPuzzleFromFile(".puzzle");
+   solver.crashIfBoardIsInvalid();
 
-   puzzle.printBoard();
+   solver.move(Up);
+   solver.move(Down);
+   solver.move(Down);
+   solver.move(Left);
+
+   solver.printPuzzle(solver.board);
 }
