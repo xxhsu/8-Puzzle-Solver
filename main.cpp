@@ -3,7 +3,7 @@
 #include <utility>
 
 using namespace std;
-using direction = enum {Up, Down, Right, Left};
+using direction = enum {UP, DOWN, RIGHT, LEFT};
 
 class Solver {
    using Puzzle = unsigned short int[3][3];
@@ -11,7 +11,7 @@ class Solver {
 
    public:
       Puzzle board;
-      Coordinate zeroPos;
+      Coordinate blankPos;
       bool validity = false;
 
       int loadPuzzleFromFile(string path) {
@@ -34,6 +34,7 @@ class Solver {
             }
             infile.close();
             validateBoard();
+            locateBlank();
          } else {
             cerr << "Puzzle file not found" << endl;
          }
@@ -48,7 +49,7 @@ class Solver {
       }
 
       void printPuzzle(Puzzle puzzle) const {
-         cout << "Board:" << endl;
+         cout << "Puzzle Board:" << endl;
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                cout << puzzle[i][j] << " ";
@@ -57,32 +58,30 @@ class Solver {
          }
       }
 
-      inline void move(direction direction) {
-         locateZero();
-
-         int x = zeroPos.first;
-         int y = zeroPos.second;
+      inline void move(const direction& direction) {
+         int x = blankPos.first;
+         int y = blankPos.second;
 
          switch (direction) {
-         case Up:
+         case UP:
             if (x < 2) {
                board[x][y] = board[x+1][y];
                board[x+1][y] = 0;
             }
             break;
-         case Right:
+         case RIGHT:
             if (y > 0) {
                board[x][y] = board[x][y-1];
                board[x][y-1] = 0;
             }
             break;
-         case Down:
+         case DOWN:
             if (x > 0) {
                board[x][y] = board[x-1][y];
                board[x-1][y] = 0;
             }
             break;
-         case Left:
+         case LEFT:
             if (y < 2) {
                board[x][y] = board[x][y+1];
                board[x][y+1] = 0;
@@ -91,17 +90,23 @@ class Solver {
          default:
             break;
          }
+         
+         locateBlank();
       }
 
-      inline void locateZero() {
+      inline void locateBlank() {
          for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                if (board[i][j] == 0) {
-                  zeroPos.first = i;
-                  zeroPos.second = j;
+                  blankPos.first = i;
+                  blankPos.second = j;
                }
             }
          }
+      }
+
+      void printBlankPos() const {
+         cout << "(" << blankPos.first << ", " << blankPos.second << ")" << endl;
       }
    private:
       int validateBoard() {
@@ -128,10 +133,11 @@ int main() {
    solver.loadPuzzleFromFile(".puzzle");
    solver.crashIfBoardIsInvalid();
 
-   solver.move(Up);
-   solver.move(Down);
-   solver.move(Down);
-   solver.move(Left);
+   //solver.move(UP);
+   solver.move(DOWN);
+   solver.move(DOWN);
+   solver.move(LEFT);
 
+   solver.printBlankPos();
    solver.printPuzzle(solver.board);
 }
