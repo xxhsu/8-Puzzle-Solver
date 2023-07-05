@@ -1,53 +1,107 @@
 #include <iostream>
+#include <queue>
 #include <fstream>
 #include <vector>
 #include <utility>
 #include <algorithm>
 #include <iterator>
+#include <unordered_map>
 
 using namespace std;
-using direction = enum {UP, DOWN, RIGHT, LEFT};
+using Direction = enum {UP, DOWN, RIGHT, LEFT};
 
 class Solver {
-	using Puzzle = unsigned short int[3][3];
+	using Puzzle = vector<vector <unsigned short int>>;
 	using PuzzleSet = vector<Puzzle>;
 	using Coordinate = pair<unsigned short int, unsigned short int>;
+	using PuzzlePriorityQueue = struct {
+		using PQElements = pair<int, Puzzle>;
+		priority_queue<PQElements, vector<PQElements>, greater<PQElements>> elems;
+
+		inline bool empty() const {
+			return elems.empty();
+		}
+		inline void put(int priority, Puzzle puzzle) {
+			elems.emplace(priority, puzzle);
+		}
+		inline Puzzle get() {
+			Puzzle puzzle = elems.top().second;
+			elems.pop();
+			return puzzle;
+		}
+	};
 
 	public:
-		Puzzle board;
-		bool validity = false;
+		Puzzle start;
+		Puzzle goal {
+			{1, 2, 3},
+			{4, 5, 6},
+			{7, 8, 0}
+		};
 
 		int loadPuzzleFromFile(string path) {
 			ifstream infile;
 			infile.open(path);
 			if (infile.is_open()) {
-			   string line;        
-			   int puzzleWidth;
-			   for (int i = 0; i < 3; i++) {
-			      getline(infile, line);
-			      if (i == 0) {
-			         puzzleWidth = line.size();       
-			      } else if (puzzleWidth != line.size()) {
-			         cerr << "Puzzle file invalid" << endl;
-			         return 0;
-			      }
-			      for (int j = 0; j < 3; j++) {
-			         board[i][j] = line[j]-'0';
-			      }
-			   }
-			   infile.close();
-			   validateBoard();
+				string line;
+				unsigned short int puzzleWidth;
+				Puzzle tempPuzzle;
+				vector<unsigned short int> col;
+				for (int i = 0; i < 3; i++) {
+				 	getline(infile, line);
+				 	if (i == 0) {
+				 		puzzleWidth = line.size();       
+				 	} else if (puzzleWidth != line.size()) {
+				 		cerr << "Puzzle file invalid" << endl;
+				 		return 0;
+				 	}
+				 	for (int j = 0; j < 3; j++) {
+				 		col.push_back(line[j]-'0');
+				 	}
+					tempPuzzle.push_back(col);
+					col.clear();
+				}
+				start = tempPuzzle;
+				infile.close();
+				if (!validate(start)) {
+					cerr << "Invalid puzzle" << endl;
+				};
 			} else {
 			   cerr << "Puzzle file not found" << endl;
 			}
 			return 0;
 		}
 
-		void crashIfBoardIsInvalid() {
-			if (!validity) {
-			   cout << "Error: Invalid puzzle" << endl;
-			   exit(0);
+		int validate(const Puzzle &puzzle) const {
+			if (!puzzle.size()) {
+				return 0;
 			}
+			int pieceNumberCount[9] = {0};
+			for (int i = 0; i < 3; i++) {
+			   for (int j = 0; j < 3; j++) {
+			      if (puzzle[i][j] < 0 && puzzle[i][j] > 8) {
+			         return 0;
+			      }
+			      pieceNumberCount[puzzle[i][j]]++;
+			      if (pieceNumberCount[puzzle[i][j]] > 1) {
+			         return 0;
+			      }
+			   }
+			}
+			return 1;
+		}
+
+		inline Coordinate locateBlank(const Puzzle &puzzle) const {
+			Coordinate blankPos;
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					if (puzzle[i][j] == 0) {
+						blankPos.first = i;
+						blankPos.second = j;
+			    	}
+				}
+			}
+			return blankPos;
 		}
 
 		void printPuzzle(Puzzle puzzle) const {
@@ -60,129 +114,79 @@ class Solver {
 			}
 		}
 
-		inline PuzzleSet neighbors(Puzzle puzzle) {
+		inline PuzzleSet neighbors(const Puzzle &puzzle) {
 			PuzzleSet puzzleSet;
-			Puzzle tempPuzzle = {
-				{0, 1, 2},
-				{3, 4, 5},
-				{6, 7, 8}
-			};
+			Puzzle tempPuzzle = puzzle;
 			Coordinate blankPos = locateBlank(puzzle);
-			//memcpy(tempPuzzle, puzzle, sizeof(Puzzle));
+			
 			int x = blankPos.first;
 			int y = blankPos.second;
-			puzzleSet.push_back(tempPuzzle);
 
-			// if (x < 2) {
-			//    tempPuzzle[x][y] = tempPuzzle[x+1][y];
-			//    tempPuzzle[x+1][y] = 0;
-			//    puzzleSet.push_back(tempPuzzle);
-			// }
-			// if (y > 0) {
-			//    tempPuzzle[x][y] = tempPuzzle[x][y-1];
-			//    tempPuzzle[x][y-1] = 0;
-			//    puzzleSet.push_back(tempPuzzle);
-			// }
-			// if (x > 0) {
-			//    tempPuzzle[x][y] = tempPuzzle[x-1][y];
-			//    tempPuzzle[x-1][y] = 0;
-			//    puzzleSet.push_back(tempPuzzle);
-			// }
-			// if (y < 2) {
-			//    tempPuzzle[x][y] = tempPuzzle[x][y+1];
-			//    tempPuzzle[x][y+1] = 0;
-			//    puzzleSet.push_back(tempPuzzle);
-			// }
+			if (x < 2) {
+			   tempPuzzle[x][y] = tempPuzzle[x+1][y];
+			   tempPuzzle[x+1][y] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
+			if (y > 0) {
+			   tempPuzzle[x][y] = tempPuzzle[x][y-1];
+			   tempPuzzle[x][y-1] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
+			if (x > 0) {
+			   tempPuzzle[x][y] = tempPuzzle[x-1][y];
+			   tempPuzzle[x-1][y] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
+			if (y < 2) {
+			   tempPuzzle[x][y] = tempPuzzle[x][y+1];
+			   tempPuzzle[x][y+1] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
 			return puzzleSet;
 		}
 
-		inline void move(const direction& direction) {
-			Coordinate blankPos = locateBlank(board);
-
-			int x = blankPos.first;
-			int y = blankPos.second;
-
-			switch (direction) {
-			case UP:
-			   if (x < 2) {
-			      board[x][y] = board[x+1][y];
-			      board[x+1][y] = 0;
-			   }
-			   break;
-			case RIGHT:
-			   if (y > 0) {
-			      board[x][y] = board[x][y-1];
-			      board[x][y-1] = 0;
-			   }
-			   break;
-			case DOWN:
-			   if (x > 0) {
-			      board[x][y] = board[x-1][y];
-			      board[x-1][y] = 0;
-			   }
-			   break;
-			case LEFT:
-			   if (y < 2) {
-			      board[x][y] = board[x][y+1];
-			      board[x][y+1] = 0;
-			   }
-			   break;
-			default:
-			   break;
+		int aStarSearch() {
+			if (!validate(start)) {
+				cerr << "Invalid puzzle" << endl;
+				return -1;
 			}
-		}
 
-		inline Coordinate locateBlank(Puzzle puzzle) {
-			Coordinate blankPos;
-			for (int i = 0; i < 3; i++) {
-			   for (int j = 0; j < 3; j++) {
-			      if (puzzle[i][j] == 0) {
-			         blankPos.first = i;
-			         blankPos.second = j;
-			      }
-			   }
-			}
-			return blankPos;
-		}
+			PuzzlePriorityQueue frontier;
+			frontier.put(0, start);
 
-		void printBoardBlankPos() {
-			Coordinate blankPos = locateBlank(board);
-			cout << "(" << blankPos.first << ", " << blankPos.second << ")" << endl;
-		}
-	private:
-		int validateBoard() {
-			int pieceNumberCount[9] = {0};
-			for (int i = 0; i < 3; i++) {
-			   for (int j = 0; j < 3; j++) {
-			      if (board[i][j] < 0 && board[i][j] > 8) {
-			         return 0;
-			      }
-			      pieceNumberCount[board[i][j]]++;
-			      if (pieceNumberCount[board[i][j]] > 1) {
-			         return 0;
-			      }
-			   }
+			unordered_map<double, Puzzle> puzzleIds;
+			puzzleIds[0] = start;
+			
+			unordered_map<double, double> cameFrom;
+			cameFrom[0] = 0;
+
+			unordered_map<unsigned short, unsigned short> costFromStart;
+			costFromStart[0] = 0;
+
+			while (!frontier.empty()) {
+				Puzzle current = frontier.get();
+
+				if (current == goal) {
+					break;
+				}
+				
+				puzzleIds.find(7);
+
+				for (Puzzle next : neighbors(current)) {
+					
+				}
 			}
-			validity = true;
 			return 0;
 		}
-	};
+};
 
-main() {
-	using Puzzle = unsigned short int[3][3];
-	using PuzzleSet = vector<Puzzle>;
-
+int main() {
 	Solver solver;
 	
 	solver.loadPuzzleFromFile(".puzzle");
-	solver.crashIfBoardIsInvalid();
-
-	solver.move(UP);
-	solver.move(DOWN);
-	solver.move(DOWN);
-	solver.move(LEFT);
-
-	PuzzleSet ps = solver.neighbors(solver.board);
-
-	solver.printPuzzle(solver.board);
+	solver.aStarSearch();
 }
