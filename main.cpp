@@ -192,7 +192,7 @@ class Solver {
 			return abs(from.first - to.first) + abs(from.second - to.second);
 		}
 
-		void printSteps() {
+		void printResult() {
 			double currentId = puzzleBook.findId(goal);
 			vector<string> stepTexts;
 
@@ -208,8 +208,8 @@ class Solver {
 
     		reverse(stepTexts.begin(), stepTexts.end());
 
+			cout << "Total iteration: " << puzzleBook.ids.size() - 1 << endl;
 			cout << "Total steps: " << stepTexts.size() << endl;
-
 			cout << "Steps: ";
 
 			for (auto i : stepTexts) {
@@ -277,7 +277,7 @@ class Solver {
 					}
 				}
 			}
-			cout << "Number of steps made: " << pid << endl;
+			
 			return 0;
 		}
 };
@@ -294,5 +294,5 @@ int main() {
     chrono::duration<double> elapsed = end - start;
 	cout << "Time spent: " << elapsed.count() << " sec" << endl;
 
-	solver.printSteps();
+	solver.printResult();
 }
