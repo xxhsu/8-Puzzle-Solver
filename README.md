@@ -1,5 +1,4 @@
 A console application that solve 8-puzzle game using `A* algorithm` in C++.  
-It cost about 10 sec to solve a 25 steps puzzle.
 
 Output sample:
 ```
