@@ -246,7 +246,6 @@ class Solver {
 
 			PuzzlePriorityQueue frontier;
 			double pid = 0;
-			//double iteration = 0;
 
 			frontier.put(0, start);
 			puzzleBook.ids[pid] = start;
@@ -288,12 +287,12 @@ class Solver {
 
 int main() {
 	auto start = chrono::high_resolution_clock::now();
-	
+
 	Solver solver;
 		
 	solver.loadPuzzleFromFile(".puzzle");
 	solver.aStarSearch();
-	
+
 	auto end = chrono::high_resolution_clock::now();
 	chrono::duration<double> elapsed = end - start;
 	cout << "Time spent: " << elapsed.count() << " sec" << endl;
