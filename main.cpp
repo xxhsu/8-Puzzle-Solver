@@ -271,7 +271,7 @@ class Solver {
 					unsigned short currentCost = puzzleBook.costSoFar[currentId];
 					unsigned short newCost = currentCost + 1;
 
-					if (puzzleBook.costSoFar.find(nextId) == puzzleBook.costSoFar.end()
+					if (puzzleBook.costSoFar.find(nextId) == puzzleBook.costSoFar.end() // id not found
 						|| newCost < puzzleBook.costSoFar[nextId]) {
 						puzzleBook.costSoFar[nextId] = newCost;
 						unsigned short priority = newCost + heuristic(next);
