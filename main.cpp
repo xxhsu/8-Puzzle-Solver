@@ -13,10 +13,10 @@
 using namespace std;
 
 class Solver {
-	using Puzzle = vector<vector <unsigned short int>>;
+	using Puzzle = vector<vector <unsigned short>>;
 	using PuzzleSet = vector<Puzzle>;
 	using PuzzlePiece = enum {ZERO = 0, ONE = 1, TWO = 2, THREE = 3, FOUR = 4, FIVE = 5, SIX = 6, SEVEN = 7, EIGHT = 8};
-	using Coordinate = pair<unsigned short int, unsigned short int>;
+	using Coordinate = pair<unsigned short, unsigned short>;
 
 	// Priority queue stores puzzle
 	using PuzzlePriorityQueue = struct {
@@ -68,9 +68,9 @@ class Solver {
 			infile.open(path);
 			if (infile.is_open()) {
 				string line;
-				unsigned short int puzzleWidth;
+				unsigned short puzzleWidth;
 				Puzzle tempPuzzle;
-				vector<unsigned short int> col;
+				vector<unsigned short> col;
 				for (int i = 0; i < 3; i++) {
 				 	getline(infile, line);
 				 	if (i == 0) {
@@ -175,8 +175,8 @@ class Solver {
 			return puzzleSet;
 		}
 
-		inline unsigned short int heuristic(const Puzzle &puzzle) const {
-			unsigned short int total = 0;
+		inline unsigned short heuristic(const Puzzle &puzzle) const {
+			unsigned short total = 0;
 			for (int i = ZERO; i < EIGHT; i++) {
     			PuzzlePiece pieceNum = static_cast<PuzzlePiece>(i);
 				Coordinate currentPos = locatePiece(puzzle, pieceNum);
@@ -186,7 +186,7 @@ class Solver {
 			return total;
 		}
 
-		inline unsigned short int manhattanDistance(
+		inline unsigned short manhattanDistance(
 			const Coordinate &from,
 			const Coordinate &to) const {
 			return abs(from.first - to.first) + abs(from.second - to.second);
@@ -265,13 +265,13 @@ class Solver {
 					pid++;
 					puzzleBook.ids[pid] = next;
 					double nextId = puzzleBook.findId(next);
-					unsigned short int currentCost = puzzleBook.costSoFar[currentId];
-					unsigned short int newCost = currentCost + 1;
+					unsigned short currentCost = puzzleBook.costSoFar[currentId];
+					unsigned short newCost = currentCost + 1;
 
 					if (puzzleBook.costSoFar.find(nextId) == puzzleBook.costSoFar.end()
 						|| newCost < puzzleBook.costSoFar[nextId]) {
 						puzzleBook.costSoFar[nextId] = newCost;
-						unsigned short int priority = newCost + heuristic(next);
+						unsigned short priority = newCost + heuristic(next);
 						frontier.put(priority, next);
 						puzzleBook.trace[nextId] = currentId;
 					}
