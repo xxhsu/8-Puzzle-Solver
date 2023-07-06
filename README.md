@@ -1,4 +1,4 @@
-A console application that solve 8-puzzle game using `A* algorithm` in C++.  
+A console application that solves 8-puzzle game using `A* algorithm` in C++.  
 
 Output sample:
 ```
