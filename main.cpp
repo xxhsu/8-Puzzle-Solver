@@ -208,12 +208,12 @@ class Solver {
 
     		reverse(stepTexts.begin(), stepTexts.end());
 
-			cout << "Total iteration: " << puzzleBook.ids.size() - 1 << endl;
-			cout << "Total steps: " << stepTexts.size() << endl;
+			cout << "Total possible steps made: " << puzzleBook.ids.size() - 1 << endl;
+			cout << "Total actual steps: " << stepTexts.size() << endl;
 			cout << "Steps: ";
 
-			for (auto i : stepTexts) {
-				cout << i << " ";
+			for (auto text : stepTexts) {
+				cout << text << " ";
 			}
 			cout << endl;
 		}
@@ -246,6 +246,7 @@ class Solver {
 
 			PuzzlePriorityQueue frontier;
 			double pid = 0;
+			//double iteration = 0;
 
 			frontier.put(0, start);
 			puzzleBook.ids[pid] = start;
@@ -262,9 +263,12 @@ class Solver {
 				double currentId = puzzleBook.findId(current);
 
 				for (Puzzle next : neighbors(current)) {
-					pid++;
-					puzzleBook.ids[pid] = next;
 					double nextId = puzzleBook.findId(next);
+					if (nextId == -1) {
+						pid++;
+						puzzleBook.ids[pid] = next;
+						nextId = pid;
+					}
 					unsigned short currentCost = puzzleBook.costSoFar[currentId];
 					unsigned short newCost = currentCost + 1;
 
