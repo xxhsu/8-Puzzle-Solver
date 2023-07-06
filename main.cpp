@@ -11,7 +11,6 @@
 #include <unordered_set>
 
 using namespace std;
-using Direction = enum {UP, DOWN, RIGHT, LEFT};
 
 class Solver {
 	using Puzzle = vector<vector <unsigned short int>>;
@@ -184,7 +183,7 @@ class Solver {
 				Coordinate goalPos = locatePiece(goal, pieceNum);
 				total += manhattanDistance(currentPos, goalPos);
 			}
-			return 0;
+			return total;
 		}
 
 		inline unsigned short int manhattanDistance(
@@ -209,6 +208,10 @@ class Solver {
 
     		reverse(stepTexts.begin(), stepTexts.end());
 
+			cout << "Total steps: " << stepTexts.size() << endl;
+
+			cout << "Steps: ";
+
 			for (auto i : stepTexts) {
 				cout << i << " ";
 			}
@@ -218,18 +221,18 @@ class Solver {
 		string stepText(const Coordinate &from, const Coordinate &to) const {
 			if (to.first == from.first) {
 				if (to.second - from.second == 1) {
-					return "LEFT";
+					return "L";
 				}
 				if (to.second - from.second == -1) {
-					return "RIGHT";
+					return "R";
 				}
 			}
 			if (to.second == from.second) {
 				if (to.first - from.first == 1) {
-					return "UP";
+					return "U";
 				}
 				if (to.first - from.first == -1) {
-					return "DOWN";
+					return "D";
 				}
 			}
 			return "NULL";
@@ -274,6 +277,7 @@ class Solver {
 					}
 				}
 			}
+			cout << "Number of steps made: " << pid << endl;
 			return 0;
 		}
 };
@@ -285,9 +289,10 @@ int main() {
 	
 	solver.loadPuzzleFromFile(".puzzle");
 	solver.aStarSearch();
-	solver.printSteps();
 
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
-	cout << "Time taken by program: " << elapsed.count() << " seconds" << endl;
+	cout << "Time spent: " << elapsed.count() << " sec" << endl;
+
+	solver.printSteps();
 }
