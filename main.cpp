@@ -208,8 +208,8 @@ class Solver {
 
     		reverse(stepTexts.begin(), stepTexts.end());
 
-			cout << "Total possible steps: " << puzzleBook.ids.size() - 1 << endl;
-			cout << "Total actual steps: " << stepTexts.size() << endl;
+			cout << "Possible steps: " << puzzleBook.ids.size() - 1 << endl;
+			cout << "Actual steps: " << stepTexts.size() << endl;
 			cout << "Steps: ";
 
 			for (auto text : stepTexts) {
