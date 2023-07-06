@@ -37,7 +37,7 @@ class Solver {
 		}
 	};
 
-	// Struct stores puzzle ids
+	// Struct stores puzzle solving infomation
 	using PuzzleBook = struct {
 		unordered_map<double, Puzzle> ids; // Puzzle id database. KEY: puzzle id, VALUE: puzzle
 		unordered_map<double, double> trace; // Moved trace. KEY: puzzle id, VALUE: last step puzzle id
