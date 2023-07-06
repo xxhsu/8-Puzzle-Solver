@@ -96,23 +96,23 @@ class Solver {
 			return 0;
 		}
 
-		int validate(const Puzzle &puzzle) const {
+		bool validate(const Puzzle &puzzle) const {
 			if (!puzzle.size()) {
-				return 0;
+				return false;
 			}
 			int pieceNumberCount[9] = {0};
 			for (int i = 0; i < 3; i++) {
 			   for (int j = 0; j < 3; j++) {
 			      if (puzzle[i][j] < 0 && puzzle[i][j] > 8) {
-			         return 0;
+			         return false;
 			      }
 			      pieceNumberCount[puzzle[i][j]]++;
 			      if (pieceNumberCount[puzzle[i][j]] > 1) {
-			         return 0;
+			         return false;
 			      }
 			   }
 			}
-			return 1;
+			return true;
 		}
 
 		inline Coordinate locatePiece(
