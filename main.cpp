@@ -14,8 +14,8 @@ using namespace std;
 
 class Solver {
 	using Puzzle = vector<vector <unsigned short>>;
-	using PuzzleSet = vector<Puzzle>;
 	using PuzzlePiece = enum {ZERO = 0, ONE = 1, TWO = 2, THREE = 3, FOUR = 4, FIVE = 5, SIX = 6, SEVEN = 7, EIGHT = 8};
+	using PuzzleSet = vector<Puzzle>;
 	using Coordinate = pair<unsigned short, unsigned short>;
 
 	// Priority queue stores puzzle
@@ -41,17 +41,6 @@ class Solver {
 		unordered_map<double, Puzzle> ids; // Puzzle id database. KEY: puzzle id, VALUE: puzzle
 		unordered_map<double, double> trace; // Moved trace. KEY: puzzle id, VALUE: last step puzzle id
 		unordered_map<unsigned short, unsigned short> costSoFar; // Cost from start. KEY: puzzle id, VALUE: cost count
-
-		inline double findId(const Puzzle &puzzle) {
-			double id = -1;
-			for (int i = 0; i < ids.size(); i++) {
-				if (ids[i] == puzzle) {
-					id = i;
-					break;
-				}
-			}
-			return id;
-		}
 	};
 
 	public:
@@ -181,9 +170,20 @@ class Solver {
 			const Coordinate &to) const {
 			return abs(from.first - to.first) + abs(from.second - to.second);
 		}
+		
+		inline double findPuzzleIdInBook(const Puzzle &puzzle) {
+			double id = -1;
+			for (int i = 0; i < puzzleBook.ids.size(); i++) {
+				if (puzzleBook.ids[i] == puzzle) {
+					id = i;
+					break;
+				}
+			}
+			return id;
+		}
 
 		void printResult() {
-			double currentId = puzzleBook.findId(goal);
+			double currentId = findPuzzleIdInBook(goal);
 			vector<string> stepTexts;
 
 			do {
@@ -249,10 +249,10 @@ class Solver {
 					break;
 				}
 
-				double currentId = puzzleBook.findId(current);
+				double currentId = findPuzzleIdInBook(current);
 
 				for (Puzzle next : neighbors(current)) {
-					double nextId = puzzleBook.findId(next);
+					double nextId = findPuzzleIdInBook(next);
 					if (nextId == -1) {
 						pid++;
 						puzzleBook.ids[pid] = next;
