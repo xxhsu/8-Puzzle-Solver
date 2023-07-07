@@ -184,6 +184,12 @@ class Solver {
 
 		void printResult() {
 			double currentId = findPuzzleIdInBook(goal);
+
+			if (currentId == -1) {
+				cout << "Puzzle unsolved" << endl;
+				return;
+			}
+
 			vector<string> stepTexts;
 
 			do {
@@ -228,10 +234,10 @@ class Solver {
 			return "NULL";
 		}
 
-		int aStarSearch() {
+		void aStarSearch() {
 			if (!validate(start)) {
 				cerr << "Invalid puzzle" << endl;
-				return -1;
+				return;
 			}
 
 			PuzzlePriorityQueue frontier;
@@ -270,8 +276,6 @@ class Solver {
 					}
 				}
 			}
-			
-			return 0;
 		}
 };
 
