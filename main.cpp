@@ -130,16 +130,6 @@ class Solver {
 			return piecePos;
 		}
 
-		void printPuzzle(Puzzle puzzle) const {
-			cout << "Puzzle Board:" << endl;
-			for (int i = 0; i < 3; i++) {
-			   for (int j = 0; j < 3; j++) {
-			      cout << puzzle[i][j] << " ";
-			   }
-			   cout << endl;
-			}
-		}
-
 		inline PuzzleSet neighbors(const Puzzle &puzzle) {
 			PuzzleSet puzzleSet;
 			Puzzle tempPuzzle = puzzle;
