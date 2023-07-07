@@ -80,7 +80,7 @@ class Solver {
 					cerr << "Invalid puzzle" << endl;
 				};
 			} else {
-			   cerr << "Puzzle file not found" << endl;
+				cerr << "Puzzle file not found" << endl;
 			}
 			return 0;
 		}
@@ -113,7 +113,7 @@ class Solver {
 					if (puzzle[i][j] == puzzlePiece) {
 						piecePos.first = i;
 						piecePos.second = j;
-			    	}
+					}
 				}
 			}
 			return piecePos;
@@ -196,7 +196,7 @@ class Solver {
 				currentId = puzzleBook.trace[currentId];
 			} while (puzzleBook.trace[currentId] != currentId);
 
-    		reverse(stepTexts.begin(), stepTexts.end());
+			reverse(stepTexts.begin(), stepTexts.end());
 
 			cout << "Possible steps: " << puzzleBook.ids.size() - 1 << endl;
 			cout << "Actual steps: " << stepTexts.size() << endl;
