@@ -3,12 +3,9 @@
 #include <queue>
 #include <fstream>
 #include <vector>
-#include <utility>
 #include <algorithm>
-#include <iterator>
 #include <chrono>
 #include <unordered_map>
-#include <unordered_set>
 
 using namespace std;
 
@@ -75,6 +72,7 @@ class Solver {
 			 		cerr << "Puzzle file invalid" << endl;
 			 		return;
 			 	}
+
 			 	for (int j = 0; j < 3; j++) {
 			 		col.push_back(line[j]-'0');
 			 	}
@@ -91,7 +89,7 @@ class Solver {
 		}
 
 		bool validate(const Puzzle &puzzle) const {
-			if (!puzzle.size()) {
+			if (puzzle.size() < 3) {
 				return false;
 			}
 			int pieceNumberCount[9] = {0};
