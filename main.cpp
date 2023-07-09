@@ -16,7 +16,9 @@ class Solver {
 	using Puzzle = vector<vector <unsigned short>>;
 	using PuzzlePiece = enum {ZERO = 0, ONE = 1, TWO = 2, THREE = 3, FOUR = 4, FIVE = 5, SIX = 6, SEVEN = 7, EIGHT = 8};
 	using PuzzleSet = vector<Puzzle>;
-	using Coordinate = pair<unsigned short, unsigned short>;
+	using Coordinate = struct {
+		unsigned short x, y;
+	};
 
 	// Priority queue stores puzzle
 	using PuzzlePriorityQueue = struct {
@@ -52,37 +54,40 @@ class Solver {
 			{7, 8, 0}
 		};
 
-		int loadPuzzleFromFile(string path) {
+		void loadPuzzleFromFile(string path) {
 			ifstream infile;
+
 			infile.open(path);
-			if (infile.is_open()) {
-				string line;
-				unsigned short puzzleWidth;
-				Puzzle tempPuzzle;
-				vector<unsigned short> col;
-				for (int i = 0; i < 3; i++) {
-				 	getline(infile, line);
-				 	if (i == 0) {
-				 		puzzleWidth = line.size();       
-				 	} else if (puzzleWidth != line.size()) {
-				 		cerr << "Puzzle file invalid" << endl;
-				 		return 0;
-				 	}
-				 	for (int j = 0; j < 3; j++) {
-				 		col.push_back(line[j]-'0');
-				 	}
-					tempPuzzle.push_back(col);
-					col.clear();
-				}
-				start = tempPuzzle;
-				infile.close();
-				if (!validate(start)) {
-					cerr << "Invalid puzzle" << endl;
-				};
-			} else {
+			if (!infile.is_open()) {
 				cerr << "Puzzle file not found" << endl;
 			}
-			return 0;
+
+			string line;
+			Puzzle tempPuzzle;
+			vector<unsigned short> col;
+			unsigned short puzzleWidth;
+
+			for (int i = 0; i < 3; i++) {
+			 	getline(infile, line);
+			 	if (i == 0) {
+			 		puzzleWidth = line.size();       
+			 	} else if (puzzleWidth != line.size()) {
+			 		cerr << "Puzzle file invalid" << endl;
+			 		return;
+			 	}
+			 	for (int j = 0; j < 3; j++) {
+			 		col.push_back(line[j]-'0');
+			 	}
+				tempPuzzle.push_back(col);
+				col.clear();
+			}
+
+			start = tempPuzzle;
+			infile.close();
+			
+			if (!validate(start)) {
+				cerr << "Invalid puzzle" << endl;
+			};
 		}
 
 		bool validate(const Puzzle &puzzle) const {
@@ -111,8 +116,8 @@ class Solver {
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
 					if (puzzle[i][j] == puzzlePiece) {
-						piecePos.first = i;
-						piecePos.second = j;
+						piecePos.x = i;
+						piecePos.y = j;
 					}
 				}
 			}
@@ -124,8 +129,8 @@ class Solver {
 			Puzzle tempPuzzle = puzzle;
 			Coordinate blankPos = locatePiece(puzzle, ZERO);
 			
-			int x = blankPos.first;
-			int y = blankPos.second;
+			unsigned short x = blankPos.x;
+			unsigned short y = blankPos.y;
 
 			if (x < 2) {
 			   tempPuzzle[x][y] = tempPuzzle[x+1][y];
@@ -168,7 +173,7 @@ class Solver {
 		inline unsigned short manhattanDistance(
 			const Coordinate &from,
 			const Coordinate &to) const {
-			return abs(from.first - to.first) + abs(from.second - to.second);
+			return abs(from.x - to.x) + abs(from.y - to.y);
 		}
 		
 		inline double findPuzzleIdInBook(const Puzzle &puzzle) {
@@ -198,14 +203,15 @@ class Solver {
 				Coordinate fromBlankPos = locatePiece(lastPuzzle, ZERO);
 				Coordinate toBlankPos = locatePiece(currentPuzzle, ZERO);
 				string directionText = stepText(fromBlankPos, toBlankPos);
+
 				stepTexts.push_back(directionText);
 				currentId = puzzleBook.trace[currentId];
 			} while (puzzleBook.trace[currentId] != currentId);
 
 			reverse(stepTexts.begin(), stepTexts.end());
 
-			cout << "Possible steps: " << puzzleBook.ids.size() - 1 << endl;
-			cout << "Actual steps: " << stepTexts.size() << endl;
+			cout << "Number of possible steps: " << puzzleBook.ids.size() - 1 << endl;
+			cout << "Number of actual steps: " << stepTexts.size() << endl;
 			cout << "Steps: ";
 
 			for (auto text : stepTexts) {
@@ -215,19 +221,19 @@ class Solver {
 		}
 
 		string stepText(const Coordinate &from, const Coordinate &to) const {
-			if (to.first == from.first) {
-				if (to.second - from.second == 1) {
+			if (to.x == from.x) {
+				if (to.y - from.y == 1) {
 					return "L";
 				}
-				if (to.second - from.second == -1) {
+				if (to.y - from.y == -1) {
 					return "R";
 				}
 			}
-			if (to.second == from.second) {
-				if (to.first - from.first == 1) {
+			if (to.y == from.y) {
+				if (to.x - from.x == 1) {
 					return "U";
 				}
-				if (to.first - from.first == -1) {
+				if (to.x - from.x == -1) {
 					return "D";
 				}
 			}
