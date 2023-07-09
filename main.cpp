@@ -40,7 +40,7 @@ class Solver {
 	using PuzzleBook = struct {
 		unordered_map<double, Puzzle> ids; // Puzzle id database. KEY: puzzle id, VALUE: puzzle
 		unordered_map<double, double> trace; // Moved trace. KEY: puzzle id, VALUE: last step puzzle id
-		unordered_map<unsigned short, unsigned short> costSoFar; // Cost from start. KEY: puzzle id, VALUE: cost count
+		unordered_map<unsigned short, unsigned short> costFromStart; // Cost from start. KEY: puzzle id, VALUE: cost count
 	};
 
 	public:
@@ -241,12 +241,15 @@ class Solver {
 			}
 
 			PuzzlePriorityQueue frontier;
+			unsigned short priority = 0;
+			unsigned short currentCost;
+			unsigned short newCost;
 			double pid = 0;
 
-			frontier.put(0, start);
+			frontier.put(priority, start);
 			puzzleBook.ids[pid] = start;
 			puzzleBook.trace[pid] = pid;
-			puzzleBook.costSoFar[pid] = 0;
+			puzzleBook.costFromStart[pid] = 0;
 
 			while (!frontier.empty()) {
 				Puzzle current = frontier.get();
@@ -264,13 +267,14 @@ class Solver {
 						puzzleBook.ids[pid] = next;
 						nextId = pid;
 					}
-					unsigned short currentCost = puzzleBook.costSoFar[currentId];
-					unsigned short newCost = currentCost + 1;
+					
+					currentCost = puzzleBook.costFromStart[currentId];
+					newCost = currentCost + 1;
 
-					if (puzzleBook.costSoFar.find(nextId) == puzzleBook.costSoFar.end() // id not found
-						|| newCost < puzzleBook.costSoFar[nextId]) {
-						puzzleBook.costSoFar[nextId] = newCost;
-						unsigned short priority = newCost + heuristic(next);
+					if (puzzleBook.costFromStart.find(nextId) == puzzleBook.costFromStart.end() // id not found
+						|| newCost < puzzleBook.costFromStart[nextId]) {
+						puzzleBook.costFromStart[nextId] = newCost;
+						priority = newCost + heuristic(next);
 						frontier.put(priority, next);
 						puzzleBook.trace[nextId] = currentId;
 					}
