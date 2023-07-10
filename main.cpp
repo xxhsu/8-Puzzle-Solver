@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <set>
 #include <chrono>
 #include <unordered_map>
 
@@ -11,7 +12,8 @@ using namespace std;
 
 class Solver {
 	using Puzzle = vector<vector <unsigned short>>;
-	using PuzzlePiece = enum {ZERO = 0, ONE = 1, TWO = 2, THREE = 3, FOUR = 4, FIVE = 5, SIX = 6, SEVEN = 7, EIGHT = 8};
+	using PuzzleSize = enum {THREE = 3, FOUR = 4, FIVE = 5, SIX = 6, SEVEN = 7, EIGHT = 8, NINE = 9, TEN = 10};
+	using PuzzlePieces = set<unsigned short, greater<unsigned short>>;
 	using PuzzleSet = vector<Puzzle>;
 	using Coordinate = struct {
 		unsigned short x, y;
@@ -42,8 +44,78 @@ class Solver {
 		unordered_map<unsigned short, unsigned short> costFromStart; // Cost from start. KEY: puzzle id, VALUE: cost count
 	};
 
-	public:
+	private:
 		PuzzleBook puzzleBook;
+		PuzzlePieces puzzlePieces;
+
+		void setPuzzlePieces() {
+			unsigned short puzzleSize = getPuzzleSize();
+			for (int i = 0; i < puzzleSize*puzzleSize; i++) {
+				puzzlePieces.insert(i);
+			}
+			unsigned short blankPiece = *puzzlePieces.begin();
+			puzzlePieces.erase(puzzlePieces.begin());
+			puzzlePieces.insert(blankPiece);
+		}
+
+		void setGoal() {
+			Puzzle tempPuzzle;
+			vector<unsigned short> col;
+			unsigned short puzzleSize = getPuzzleSize();
+			unsigned short piece;
+
+			for (int i = 0; i < puzzleSize*puzzleSize; i++) {
+				//piece = puzzlePieces.find(i); // todo
+				//col.push_back(piece);
+			}
+
+			for (int i = 0; i < puzzleSize; i++) {
+				for (int j = 0; j < puzzleSize; j++) {
+					int d = i*j;
+					//unsigned short a = puzzlePieces.find(d);
+					//col.push_back(a);
+				}
+				tempPuzzle.push_back(col);
+				col.clear();
+			}
+			goal = tempPuzzle;
+		}
+
+		inline unsigned short getPuzzleSize() const {
+			return static_cast<unsigned short>(puzzleSize);
+		}
+
+		bool validatePuzzle(const Puzzle &puzzle) const {
+			if (puzzle.size() < 3) {
+				return false;
+			}
+			unsigned short puzzleSize = getPuzzleSize();
+			unsigned short pieceNumberCount[puzzleSize*puzzleSize] = {0};
+			for (int i = 0; i < puzzleSize; i++) {
+			   for (int j = 0; j < puzzleSize; j++) {
+			    	if (puzzle[i][j] < 0 && puzzle[i][j] > (puzzleSize*puzzleSize - 1)) {
+			    		return false;
+			    	}
+			    	pieceNumberCount[puzzle[i][j]]++;
+			    	if (pieceNumberCount[puzzle[i][j]] > 1) {
+						cout << puzzle[i][j] << ": " << pieceNumberCount[puzzle[i][j]] << endl;
+			    		return false;
+			    	}
+			   }
+			}
+			return true;
+		}
+
+		bool validatePiece(unsigned short puzzlePiece) {
+			if (puzzlePieces.find(puzzlePiece) == puzzlePieces.end()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+	public:
+		PuzzleSize puzzleSize = FOUR;
 		Puzzle start;
 		Puzzle goal {
 			{1, 2, 3},
@@ -51,31 +123,18 @@ class Solver {
 			{7, 8, 0}
 		};
 
-		bool validate(const Puzzle &puzzle) const {
-			if (puzzle.size() < 3) {
-				return false;
-			}
-			int pieceNumberCount[9] = {0};
-			for (int i = 0; i < 3; i++) {
-			   for (int j = 0; j < 3; j++) {
-			      if (puzzle[i][j] < 0 && puzzle[i][j] > 8) {
-			         return false;
-			      }
-			      pieceNumberCount[puzzle[i][j]]++;
-			      if (pieceNumberCount[puzzle[i][j]] > 1) {
-			         return false;
-			      }
-			   }
-			}
-			return true;
+		Solver() {
+			setPuzzlePieces();
+			//setGoal();
 		}
 
 		inline Coordinate locatePiece(
 			const Puzzle &puzzle,
-			const PuzzlePiece &puzzlePiece) const {
+			unsigned short int puzzlePiece) {
 			Coordinate piecePos;
-			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < 3; j++) {
+			unsigned short size = getPuzzleSize();
+			for (int i = 0; i < size; i++) {
+				for (int j = 0; j < size; j++) {
 					if (puzzle[i][j] == puzzlePiece) {
 						piecePos.x = i;
 						piecePos.y = j;
@@ -88,12 +147,13 @@ class Solver {
 		inline PuzzleSet neighbors(const Puzzle &puzzle) {
 			PuzzleSet puzzleSet;
 			Puzzle tempPuzzle = puzzle;
-			Coordinate blankPos = locatePiece(puzzle, ZERO);
+			Coordinate blankPos = locatePiece(puzzle, 0);
 			
+			unsigned short puzzleSize = getPuzzleSize();
 			unsigned short x = blankPos.x;
 			unsigned short y = blankPos.y;
 
-			if (x < 2) {
+			if (x < puzzleSize - 1) {
 			   tempPuzzle[x][y] = tempPuzzle[x+1][y];
 			   tempPuzzle[x+1][y] = 0;
 			   puzzleSet.push_back(tempPuzzle);
@@ -111,7 +171,7 @@ class Solver {
 			   puzzleSet.push_back(tempPuzzle);
 			   tempPuzzle = puzzle;
 			}
-			if (y < 2) {
+			if (y < puzzleSize - 1) {
 			   tempPuzzle[x][y] = tempPuzzle[x][y+1];
 			   tempPuzzle[x][y+1] = 0;
 			   puzzleSet.push_back(tempPuzzle);
@@ -120,12 +180,14 @@ class Solver {
 			return puzzleSet;
 		}
 
-		inline unsigned short heuristic(const Puzzle &puzzle) const {
+		inline unsigned short heuristic(const Puzzle &puzzle) {
 			unsigned short total = 0;
-			for (int i = ZERO; i < EIGHT; i++) {
-    			PuzzlePiece pieceNum = static_cast<PuzzlePiece>(i);
-				Coordinate currentPos = locatePiece(puzzle, pieceNum);
-				Coordinate goalPos = locatePiece(goal, pieceNum);
+			unsigned short puzzlePiece;
+			unsigned short puzzleSize = getPuzzleSize();
+			for (int i = 0; i < puzzleSize*puzzleSize; i++) {
+				puzzlePiece = i;
+				Coordinate currentPos = locatePiece(puzzle, puzzlePiece);
+				Coordinate goalPos = locatePiece(goal, puzzlePiece);
 				total += manhattanDistance(currentPos, goalPos);
 			}
 			return total;
@@ -157,12 +219,12 @@ class Solver {
 			}
 
 			vector<string> stepTexts;
-
+			
 			do {
 				Puzzle currentPuzzle = puzzleBook.ids[currentId];
 				Puzzle lastPuzzle = puzzleBook.ids[puzzleBook.trace[currentId]];
-				Coordinate fromBlankPos = locatePiece(lastPuzzle, ZERO);
-				Coordinate toBlankPos = locatePiece(currentPuzzle, ZERO);
+				Coordinate fromBlankPos = locatePiece(lastPuzzle, 0);
+				Coordinate toBlankPos = locatePiece(currentPuzzle, 0);
 				string directionText = stepText(fromBlankPos, toBlankPos);
 
 				stepTexts.push_back(directionText);
@@ -202,7 +264,7 @@ class Solver {
 		}
 
 		void aStarSearch() {
-			if (!validate(start)) {
+			if (!validatePuzzle(start)) {
 				cerr << "Invalid puzzle" << endl;
 				return;
 			}
@@ -251,19 +313,29 @@ class Solver {
 };
 
 int main() {
-	auto start = chrono::high_resolution_clock::now();
+	auto clockStart = chrono::high_resolution_clock::now();
 
 	Solver solver;
 
 	solver.start = {
-		{5, 4, 8},
-		{6, 2, 0},
-		{3, 7, 1}
+		{3, 0, 1, 13},
+		{11, 12, 7, 4},
+		{8, 5, 2, 14},
+		{9, 6, 10, 15}
 	};
+	solver.goal = {
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+		{9, 10, 11, 12},
+		{13, 14, 15, 0}
+	};
+	// {5, 4, 8},
+	// {6, 2, 0},
+	// {3, 7, 1}
 	solver.aStarSearch();
 
-	auto end = chrono::high_resolution_clock::now();
-	chrono::duration<double> elapsed = end - start;
+	auto clockEnd = chrono::high_resolution_clock::now();
+	chrono::duration<double> elapsed = clockEnd - clockStart;
 	cout << "Time spent: " << elapsed.count() << " sec" << endl;
 
 	solver.printResult();
