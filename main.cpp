@@ -51,43 +51,6 @@ class Solver {
 			{7, 8, 0}
 		};
 
-		void loadPuzzleFromFile(string path) {
-			ifstream infile;
-
-			infile.open(path);
-			if (!infile.is_open()) {
-				cerr << "Puzzle file not found" << endl;
-			}
-
-			string line;
-			Puzzle tempPuzzle;
-			vector<unsigned short> col;
-			unsigned short puzzleWidth;
-
-			for (int i = 0; i < 3; i++) {
-			 	getline(infile, line);
-			 	if (i == 0) {
-			 		puzzleWidth = line.size();       
-			 	} else if (puzzleWidth != line.size()) {
-			 		cerr << "Puzzle file invalid" << endl;
-			 		return;
-			 	}
-
-			 	for (int j = 0; j < 3; j++) {
-			 		col.push_back(line[j]-'0');
-			 	}
-				tempPuzzle.push_back(col);
-				col.clear();
-			}
-
-			start = tempPuzzle;
-			infile.close();
-			
-			if (!validate(start)) {
-				cerr << "Invalid puzzle" << endl;
-			};
-		}
-
 		bool validate(const Puzzle &puzzle) const {
 			if (puzzle.size() < 3) {
 				return false;
@@ -291,8 +254,12 @@ int main() {
 	auto start = chrono::high_resolution_clock::now();
 
 	Solver solver;
-		
-	solver.loadPuzzleFromFile(".puzzle");
+
+	solver.start = {
+		{5, 4, 8},
+		{6, 2, 0},
+		{3, 7, 1}
+	};
 	solver.aStarSearch();
 
 	auto end = chrono::high_resolution_clock::now();
