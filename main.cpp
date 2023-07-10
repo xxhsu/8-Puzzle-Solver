@@ -43,7 +43,6 @@ class Solver {
 	};
 
 	public:
-		PuzzleBook puzzleBook;
 		Puzzle start;
 		Puzzle goal {
 			{1, 2, 3},
@@ -53,25 +52,20 @@ class Solver {
 
 		void loadPuzzleFromFile(string path) {
 			ifstream infile;
-			string line;
-			Puzzle tempPuzzle;
-			vector<unsigned short> col;
-			unsigned short puzzleWidth;
-			string fileText;
-			string pieces;
-
 			infile.open(path);
-			
 			if (!infile.is_open()) {
 				cerr << "Puzzle file not found" << endl;
 				return;
 			}
 			
+			string fileText;
+			string line;
 			while(getline(infile, line)) {
 				fileText += line;
 			}
 			infile.close();
 
+0			string pieces;
 			for (char c : fileText) {
 				if (isdigit(c)) {
 					pieces += c;
@@ -83,6 +77,8 @@ class Solver {
 				return;
 			}
 
+			Puzzle tempPuzzle;
+			vector<unsigned short> col;
 			for (int i = 0; i < 9; i++) {
 			 	col.push_back(pieces[i]-'0');
 				if (i % 3 == 2) {
@@ -97,156 +93,6 @@ class Solver {
 			}
 
 			start = tempPuzzle;
-		}
-
-		bool validate(const Puzzle &puzzle) const {
-			if (puzzle.size() < 3) {
-				return false;
-			}
-			int pieceNumberCount[9] = {0};
-			for (int i = 0; i < 3; i++) {
-			   for (int j = 0; j < 3; j++) {
-			      if (puzzle[i][j] < 0 && puzzle[i][j] > 8) {
-			         return false;
-			      }
-			      pieceNumberCount[puzzle[i][j]]++;
-			      if (pieceNumberCount[puzzle[i][j]] > 1) {
-			         return false;
-			      }
-			   }
-			}
-			return true;
-		}
-
-		inline Coordinate locatePiece(
-			const Puzzle &puzzle,
-			const PuzzlePiece &puzzlePiece) const {
-			Coordinate piecePos;
-			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < 3; j++) {
-					if (puzzle[i][j] == puzzlePiece) {
-						piecePos.x = i;
-						piecePos.y = j;
-					}
-				}
-			}
-			return piecePos;
-		}
-
-		inline PuzzleSet neighbors(const Puzzle &puzzle) {
-			PuzzleSet puzzleSet;
-			Puzzle tempPuzzle = puzzle;
-			Coordinate blankPos = locatePiece(puzzle, ZERO);
-			
-			unsigned short x = blankPos.x;
-			unsigned short y = blankPos.y;
-
-			if (x < 2) {
-			   tempPuzzle[x][y] = tempPuzzle[x+1][y];
-			   tempPuzzle[x+1][y] = 0;
-			   puzzleSet.push_back(tempPuzzle);
-			   tempPuzzle = puzzle;
-			}
-			if (y > 0) {
-			   tempPuzzle[x][y] = tempPuzzle[x][y-1];
-			   tempPuzzle[x][y-1] = 0;
-			   puzzleSet.push_back(tempPuzzle);
-			   tempPuzzle = puzzle;
-			}
-			if (x > 0) {
-			   tempPuzzle[x][y] = tempPuzzle[x-1][y];
-			   tempPuzzle[x-1][y] = 0;
-			   puzzleSet.push_back(tempPuzzle);
-			   tempPuzzle = puzzle;
-			}
-			if (y < 2) {
-			   tempPuzzle[x][y] = tempPuzzle[x][y+1];
-			   tempPuzzle[x][y+1] = 0;
-			   puzzleSet.push_back(tempPuzzle);
-			   tempPuzzle = puzzle;
-			}
-			return puzzleSet;
-		}
-
-		inline unsigned short heuristic(const Puzzle &puzzle) const {
-			unsigned short total = 0;
-			for (int i = ZERO; i < EIGHT; i++) {
-    			PuzzlePiece pieceNum = static_cast<PuzzlePiece>(i);
-				Coordinate currentPos = locatePiece(puzzle, pieceNum);
-				Coordinate goalPos = locatePiece(goal, pieceNum);
-				total += manhattanDistance(currentPos, goalPos);
-			}
-			return total;
-		}
-
-		inline unsigned short manhattanDistance(
-			const Coordinate &from,
-			const Coordinate &to) const {
-			return abs(from.x - to.x) + abs(from.y - to.y);
-		}
-		
-		inline double findPuzzleIdInBook(const Puzzle &puzzle) {
-			double id = -1;
-			for (int i = 0; i < puzzleBook.ids.size(); i++) {
-				if (puzzleBook.ids[i] == puzzle) {
-					id = i;
-					break;
-				}
-			}
-			return id;
-		}
-
-		void printResult() {
-			double currentId = findPuzzleIdInBook(goal);
-
-			if (currentId == -1) {
-				cout << "Puzzle unsolved" << endl;
-				return;
-			}
-
-			vector<string> stepTexts;
-
-			do {
-				Puzzle currentPuzzle = puzzleBook.ids[currentId];
-				Puzzle lastPuzzle = puzzleBook.ids[puzzleBook.trace[currentId]];
-				Coordinate fromBlankPos = locatePiece(lastPuzzle, ZERO);
-				Coordinate toBlankPos = locatePiece(currentPuzzle, ZERO);
-				string directionText = stepText(fromBlankPos, toBlankPos);
-
-				stepTexts.push_back(directionText);
-				currentId = puzzleBook.trace[currentId];
-			} while (puzzleBook.trace[currentId] != currentId);
-
-			reverse(stepTexts.begin(), stepTexts.end());
-
-			cout << "Number of possible steps: " << puzzleBook.ids.size() - 1 << endl;
-			cout << "Number of actual steps: " << stepTexts.size() << endl;
-			cout << "Steps: ";
-
-			for (auto text : stepTexts) {
-				cout << text << " ";
-			}
-			cout << endl;
-		}
-
-		string stepText(const Coordinate &from, const Coordinate &to) const {
-			if (to.x == from.x) {
-				if (to.y - from.y == 1) {
-					return "L";
-				}
-				if (to.y - from.y == -1) {
-					return "R";
-				}
-			}
-			if (to.y == from.y) {
-				if (to.x - from.x == 1) {
-					return "U";
-				}
-				if (to.x - from.x == -1) {
-					return "D";
-				}
-			}
-			return "NULL";
 		}
 
 		void aStarSearch() {
@@ -295,6 +141,159 @@ class Solver {
 					}
 				}
 			}
+		}
+
+		void printResult() {
+			double currentId = findPuzzleIdInBook(goal);
+
+			if (currentId == -1) {
+				cout << "Puzzle unsolved" << endl;
+				return;
+			}
+
+			vector<string> stepTexts;
+
+			do {
+				Puzzle currentPuzzle = puzzleBook.ids[currentId];
+				Puzzle lastPuzzle = puzzleBook.ids[puzzleBook.trace[currentId]];
+				Coordinate fromBlankPos = locatePiece(lastPuzzle, ZERO);
+				Coordinate toBlankPos = locatePiece(currentPuzzle, ZERO);
+				string directionText = stepText(fromBlankPos, toBlankPos);
+
+				stepTexts.push_back(directionText);
+				currentId = puzzleBook.trace[currentId];
+			} while (puzzleBook.trace[currentId] != currentId);
+
+			reverse(stepTexts.begin(), stepTexts.end());
+
+			cout << "Number of possible steps: " << puzzleBook.ids.size() - 1 << endl;
+			cout << "Number of actual steps: " << stepTexts.size() << endl;
+			cout << "Steps: ";
+
+			for (auto text : stepTexts) {
+				cout << text << " ";
+			}
+			cout << endl;
+		}
+
+	private:
+		PuzzleBook puzzleBook;
+
+		bool validate(const Puzzle &puzzle) const {
+			if (puzzle.size() < 3) {
+				return false;
+			}
+			int pieceNumberCount[9] = {0};
+			for (int i = 0; i < 3; i++) {
+			   for (int j = 0; j < 3; j++) {
+			      if (puzzle[i][j] < 0 && puzzle[i][j] > 8) {
+			         return false;
+			      }
+			      pieceNumberCount[puzzle[i][j]]++;
+			      if (pieceNumberCount[puzzle[i][j]] > 1) {
+			         return false;
+			      }
+			   }
+			}
+			return true;
+		}
+
+		inline Coordinate locatePiece(
+			const Puzzle &puzzle,
+			const PuzzlePiece &puzzlePiece) const {
+			Coordinate piecePos;
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					if (puzzle[i][j] == puzzlePiece) {
+						piecePos.x = i;
+						piecePos.y = j;
+					}
+				}
+			}
+			return piecePos;
+		}
+		
+		inline double findPuzzleIdInBook(const Puzzle &puzzle) {
+			double id = -1;
+			for (int i = 0; i < puzzleBook.ids.size(); i++) {
+				if (puzzleBook.ids[i] == puzzle) {
+					id = i;
+					break;
+				}
+			}
+			return id;
+		}
+
+		inline unsigned short manhattanDistance(
+			const Coordinate &from,
+			const Coordinate &to) const {
+			return abs(from.x - to.x) + abs(from.y - to.y);
+		}
+
+		inline unsigned short heuristic(const Puzzle &puzzle) const {
+			unsigned short total = 0;
+			for (int i = ZERO; i < EIGHT; i++) {
+    			PuzzlePiece pieceNum = static_cast<PuzzlePiece>(i);
+				Coordinate currentPos = locatePiece(puzzle, pieceNum);
+				Coordinate goalPos = locatePiece(goal, pieceNum);
+				total += manhattanDistance(currentPos, goalPos);
+			}
+			return total;
+		}
+
+		string stepText(const Coordinate &from, const Coordinate &to) const {
+			if (to.x == from.x) {
+				if (to.y - from.y == 1) {
+					return "L";
+				}
+				if (to.y - from.y == -1) {
+					return "R";
+				}
+			}
+			if (to.y == from.y) {
+				if (to.x - from.x == 1) {
+					return "U";
+				}
+				if (to.x - from.x == -1) {
+					return "D";
+				}
+			}
+			return "NULL";
+		}
+
+		inline PuzzleSet neighbors(const Puzzle &puzzle) {
+			PuzzleSet puzzleSet;
+			Puzzle tempPuzzle = puzzle;
+			Coordinate blankPos = locatePiece(puzzle, ZERO);
+			
+			unsigned short x = blankPos.x;
+			unsigned short y = blankPos.y;
+
+			if (x < 2) {
+			   tempPuzzle[x][y] = tempPuzzle[x+1][y];
+			   tempPuzzle[x+1][y] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
+			if (y > 0) {
+			   tempPuzzle[x][y] = tempPuzzle[x][y-1];
+			   tempPuzzle[x][y-1] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
+			if (x > 0) {
+			   tempPuzzle[x][y] = tempPuzzle[x-1][y];
+			   tempPuzzle[x-1][y] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
+			if (y < 2) {
+			   tempPuzzle[x][y] = tempPuzzle[x][y+1];
+			   tempPuzzle[x][y+1] = 0;
+			   puzzleSet.push_back(tempPuzzle);
+			   tempPuzzle = puzzle;
+			}
+			return puzzleSet;
 		}
 };
 
