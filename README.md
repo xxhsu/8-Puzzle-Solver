@@ -2,8 +2,8 @@ A console application that solves 8-puzzle game using `A* algorithm` in C++.
 
 Output sample:
 ```
-Time spent: 0.254331 sec
-Number of possible steps: 1097
-Number of actual steps: 22
-Steps: U L D R D L U R R D L U U L D R R U L D L U
+Time spent: 0.623943 sec
+Number of possible steps: 1746
+Number of actual steps: 25
+Steps: R U U L L D R U L D D R U R D L U R U L L D R U L
 ```

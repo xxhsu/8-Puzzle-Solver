@@ -65,7 +65,7 @@ class Solver {
 			}
 			infile.close();
 
-0			string pieces;
+			string pieces;
 			for (char c : fileText) {
 				if (isdigit(c)) {
 					pieces += c;
