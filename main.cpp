@@ -58,6 +58,7 @@ class Solver {
 				return;
 			}
 			
+			// load text
 			string fileText;
 			string line;
 			while(getline(infile, line)) {
@@ -65,6 +66,7 @@ class Solver {
 			}
 			infile.close();
 
+			// extract digits
 			string pieces;
 			for (char c : fileText) {
 				if (isdigit(c)) {
@@ -77,6 +79,7 @@ class Solver {
 				return;
 			}
 
+			// create puzzle
 			Puzzle tempPuzzle;
 			vector<unsigned short> col;
 			for (int i = 0; i < 9; i++) {
