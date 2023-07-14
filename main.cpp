@@ -19,13 +19,13 @@ class Solver {
 
 	// Priority queue stores puzzle
 	using PuzzlePriorityQueue = struct {
-		using PQElements = pair<int, Puzzle>;
+		using PQElements = pair<unsigned short, Puzzle>;
 		priority_queue<PQElements, vector<PQElements>, greater<PQElements>> elems;
 
 		inline bool empty() const {
 			return elems.empty();
 		}
-		inline void put(int priority, Puzzle puzzle) {
+		inline void put(unsigned short priority, Puzzle puzzle) {
 			elems.emplace(priority, puzzle);
 		}
 		inline Puzzle get() {
