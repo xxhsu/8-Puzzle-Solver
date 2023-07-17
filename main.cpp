@@ -235,6 +235,7 @@ class Solver
 					}
 				}
 			}
+			
 			return true;
 		}
 
@@ -254,6 +255,7 @@ class Solver
 					}
 				}
 			}
+
 			return piecePos;
 		}
 		
@@ -268,6 +270,7 @@ class Solver
 					break;
 				}
 			}
+
 			return id;
 		}
 
@@ -287,7 +290,7 @@ class Solver
 				PuzzlePiece pieceNum = static_cast<PuzzlePiece>(i);
 				Coordinate currentPos = locatePiece(puzzle, pieceNum);
 				Coordinate goalPos = locatePiece(goal, pieceNum);
-				
+
 				total += manhattanDistance(currentPos, goalPos);
 			}
 
@@ -318,6 +321,7 @@ class Solver
 					return "D";
 				}
 			}
+
 			return "NULL";
 		}
 
@@ -358,6 +362,7 @@ class Solver
 			   puzzleSet.push_back(tempPuzzle);
 			   tempPuzzle = puzzle;
 			}
+
 			return puzzleSet;
 		}
 };
