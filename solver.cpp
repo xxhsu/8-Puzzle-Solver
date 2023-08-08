@@ -240,34 +240,6 @@ unsigned short Solver::heuristic(const Puzzle &puzzle) const
 	return total;
 }
 
-string Solver::stepText(const Coordinate &from, const Coordinate &to) const
-{
-	if (to.x == from.x)
-	{
-		if (to.y - from.y == 1)
-		{
-			return "L";
-		}
-		if (to.y - from.y == -1)
-		{
-			return "R";
-		}
-	}
-	if (to.y == from.y)
-	{
-		if (to.x - from.x == 1)
-		{
-			return "U";
-		}
-		if (to.x - from.x == -1)
-		{
-			return "D";
-		}
-	}
-
-	return "NULL";
-}
-
 PuzzleSet Solver::neighbors(const Puzzle &puzzle)
 {
 	PuzzleSet puzzleSet;
@@ -307,4 +279,32 @@ PuzzleSet Solver::neighbors(const Puzzle &puzzle)
 	}
 
 	return puzzleSet;
+}
+
+string Solver::stepText(const Coordinate &from, const Coordinate &to) const
+{
+	if (to.x == from.x)
+	{
+		if (to.y - from.y == 1)
+		{
+			return "L";
+		}
+		if (to.y - from.y == -1)
+		{
+			return "R";
+		}
+	}
+	if (to.y == from.y)
+	{
+		if (to.x - from.x == 1)
+		{
+			return "U";
+		}
+		if (to.x - from.x == -1)
+		{
+			return "D";
+		}
+	}
+
+	return "NULL";
 }

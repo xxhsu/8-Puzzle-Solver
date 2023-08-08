@@ -13,7 +13,6 @@ using PuzzlePiece = enum {ZERO = 0, ONE = 1, TWO = 2, THREE = 3, FOUR = 4, FIVE 
 
 class Solver
 {
-
 	struct Coordinate { unsigned short x, y; };
 
 	// Struct stores puzzle solving infomation
@@ -49,7 +48,7 @@ class Solver
 	};
 
 public:
-	void loadPuzzleFromFile(const char* path);
+	void loadPuzzleFromFile(const char *path);
 	void aStarSearch();
 	void printResult();
 
@@ -68,6 +67,6 @@ private:
 	inline double findPuzzleIdInBook(const Puzzle &puzzle);
 	inline unsigned short manhattanDistance(const Coordinate &from, const Coordinate &to) const;
 	inline unsigned short heuristic(const Puzzle &puzzle) const;
-	string stepText(const Coordinate &from, const Coordinate &to) const;
 	inline PuzzleSet neighbors(const Puzzle &puzzle);
+	string stepText(const Coordinate &from, const Coordinate &to) const;
 };
